@@ -1,0 +1,17 @@
+services:
+  app1:
+    image: php:8.2
+    volumes:
+      - ./apps/app1:/app
+    working_dir: /app
+    command: php -S app1:8000 -t public
+    ports:
+      - 8000:8000
+  app2:
+    image: php:8.2
+    volumes:
+      - ./apps/app2:/app
+    working_dir: /app
+    command: php -S app2:8001 -t public
+    ports:
+      - 8001:8001
