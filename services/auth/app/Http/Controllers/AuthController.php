@@ -51,7 +51,7 @@ class AuthController extends Controller
 
         $credentials = $request->only(['username', 'password']);
         
-        if (!$token = Auth::setTTL(7200)->attempt($credentials)) {
+        if (!$token = Auth::attempt($credentials)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -59,6 +59,37 @@ class AuthController extends Controller
             'userid' => Auth::user()->id,
             'username' => Auth::user()->username,
             'email' => Auth::user()->email,
+            'token' => $token,
+            'expires_in' => Auth::factory()->getTTL() * 60,
+        ], 200);
+    }
+
+    /**
+     * Refresh a token.
+     *
+     * @return void
+     */
+    public function logout()
+    {
+        $token = Auth::tokenById(Auth::user()->id);
+        try {
+            Auth::logout(true);
+            return response()->json(['message' => 'Logout successful', 'status' => 'success'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Logout failed', 'status' => 'failed'], 200);
+        }
+    }
+
+    /**
+     * Refresh a token.
+     *
+     * @return void
+     */
+    public function refresh()
+    {
+        $token = Auth::refresh(true, true);
+
+        return response()->json([
             'token' => $token,
             'expires_in' => Auth::factory()->getTTL() * 60,
         ], 200);
