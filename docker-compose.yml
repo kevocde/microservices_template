@@ -1,17 +1,32 @@
 services:
-  app1:
-    image: php:8.2
+  auth:
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
     volumes:
-      - ./apps/app1:/app
-    working_dir: /app
-    command: php -S app1:8000 -t public
+      - ./services/auth:/app
     ports:
       - 8000:8000
-  app2:
-    image: php:8.2
+  file_manager:
+    build:
+      context: ./services/file_manager
+      dockerfile: Dockerfile
     volumes:
-      - ./apps/app2:/app
+      - ./services/file_manager:/app
     working_dir: /app
-    command: php -S app2:8001 -t public
     ports:
       - 8001:8001
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - ./services/db/data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432 # delete this line if you don't want to expose the port
+  queue:
+    image: rabbitmq:3.13-management
+    restart: always
+    volumes:
+      - ./services/rabbitmq/data:/var/lib/rabbitmq
